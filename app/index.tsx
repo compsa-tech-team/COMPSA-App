@@ -1,10 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { Link } from 'expo-router';
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to COMPSA App</Text>
       <Text style={styles.subtitle}>Your app is now set up and ready to go!</Text>
+      <Link href="/about/about">Go to About Page</Link>
     </View>
   );
 }

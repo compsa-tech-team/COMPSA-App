@@ -7,6 +7,7 @@ export default function HomeScreen() {
       <Text style={styles.title}>Welcome to COMPSA App</Text>
       <Text style={styles.subtitle}>Your app is now set up and ready to go!</Text>
       <Link href="/about/about">Go to About Page</Link>
+      <Link href="/contact/contact">Go to Contact Page</Link>
     </View>
   );
 }

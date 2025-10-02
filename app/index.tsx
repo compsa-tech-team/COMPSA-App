@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
 import { Link } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
   return (
@@ -8,6 +8,7 @@ export default function HomeScreen() {
       <Text style={styles.subtitle}>Your app is now set up and ready to go!</Text>
       <Link href="/about/about">Go to About Page</Link>
       <Link href="/contact/contact">Go to Contact Page</Link>
+      <Link href="/academics/academics">Go to Academics Page</Link>
     </View>
   );
 }

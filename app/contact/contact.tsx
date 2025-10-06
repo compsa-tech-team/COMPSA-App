@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import {
   Alert,
+  Dimensions,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -97,13 +98,16 @@ export default function About() {
   );
 }
 
+const { width, height } = Dimensions.get("window");
+const mapSize = Math.min(width * 0.9, 600);
+
 const styles = StyleSheet.create({
   container: {
     display: "flex",
     justifyContent: "center",
     alignItems: "flex-start",
     height: "100%",
-    padding: 50,
+    padding: width * 0.15,
     paddingTop: 30,
   },
   background: {
@@ -149,7 +153,7 @@ const styles = StyleSheet.create({
     padding: 15,
     width: "100%",
     backgroundColor: "transparent",
-    borderRadius: 5,
+    borderRadius: 10,
     borderWidth: 2,
     borderColor: "white",
     marginBottom: 30,
@@ -159,10 +163,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   map: {
-    width: 600,
+    width: mapSize,
+    height: mapSize,
     maxWidth: "100%",
-    height: 600,
     maxHeight: "100%",
+    alignSelf: "center",
   },
   portfolioHeading: {
     color: "white",

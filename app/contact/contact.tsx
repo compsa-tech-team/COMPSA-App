@@ -1,7 +1,7 @@
-import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Alert,
+  Dimensions,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -10,18 +10,34 @@ import {
   View,
 } from "react-native";
 
-// import MapView from "react-native-maps";
+import { LinearGradient } from "expo-linear-gradient";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 const onPress = () => {
   Alert.alert("This should submit the message somewhere");
 };
 
+const INITIAL_REGION = {
+  latitude: 44.2281,
+  longitude: -76.4923,
+  latitudeDelta: 0.005,
+  longitudeDelta: 0.005,
+};
+
 export default function About() {
+  // this code auto displays the markers title and description
+  const markerRef = useRef<any>(null);
+  useEffect(() => {
+    setTimeout(() => {
+      markerRef.current?.showCallout();
+    }, 500); // delay to let marker render
+  }, []);
+
   return (
     <ScrollView>
       <View style={styles.container}>
         <LinearGradient
-          // Background Linear Gradient
+          // background linear gradient
           colors={["#1f1f1f", "#1f1f1f", "#381c64"]}
           locations={[0, 0.1, 1]}
           style={styles.background}
@@ -55,7 +71,24 @@ export default function About() {
           </Pressable>
         </View>
 
-        {/* <MapView style={styles.map} /> */}
+        <MapView
+          style={styles.map}
+          provider={PROVIDER_GOOGLE}
+          initialRegion={INITIAL_REGION}
+          showsUserLocation
+          showsMyLocationButton
+          zoomEnabled={true}
+          scrollEnabled={true}
+          pitchEnabled={true}
+          rotateEnabled={true}
+        >
+          <Marker
+            ref={markerRef}
+            coordinate={{ latitude: 44.2281, longitude: -76.4923 }}
+            title="Goodwin Hall"
+            description="Kingston, Ontario"
+          />
+        </MapView>
 
         <Text style={styles.portfolioHeading}>
           LOOKING FOR A SPECIFIC PORTFOLIO?
@@ -65,13 +98,16 @@ export default function About() {
   );
 }
 
+const { width, height } = Dimensions.get("window");
+const mapSize = Math.min(width * 0.9, 600);
+
 const styles = StyleSheet.create({
   container: {
     display: "flex",
     justifyContent: "center",
     alignItems: "flex-start",
     height: "100%",
-    padding: 50,
+    padding: width * 0.15,
     paddingTop: 30,
   },
   background: {
@@ -117,7 +153,7 @@ const styles = StyleSheet.create({
     padding: 15,
     width: "100%",
     backgroundColor: "transparent",
-    borderRadius: 5,
+    borderRadius: 10,
     borderWidth: 2,
     borderColor: "white",
     marginBottom: 30,
@@ -127,12 +163,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   map: {
-    width: "50%",
-    height: "50%",
+    width: mapSize,
+    height: mapSize,
+    maxWidth: "100%",
+    maxHeight: "100%",
+    alignSelf: "center",
   },
   portfolioHeading: {
     color: "white",
     fontWeight: "700",
     fontSize: 30,
+    marginTop: 50,
   },
 });

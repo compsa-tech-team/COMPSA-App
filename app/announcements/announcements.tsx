@@ -41,7 +41,12 @@ export default function Announcements() {
           return clubOk && typeOk;
         });
         setVisible(filtered);
-      }
+    }
+    function resetFilters() {
+        setSelectedClub("All");
+        setSelectedType("All");
+        setVisible(ALL_ANNOUNCEMENTS);
+    }
 
     return (
         <LinearGradient
@@ -90,18 +95,34 @@ export default function Announcements() {
             </View>
 
             <View style={{ height: 10 }} />
+            
+            <View style={styles.filterActionsRow}>
+            <Text style={styles.resultCount}>
+                {visible.length} result{visible.length === 1 ? "" : "s"}
+            </Text>
+            <TouchableOpacity onPress={resetFilters} style={styles.clearBtn}>
+                <Text style={styles.clearBtnText}>Clear filters</Text>
+            </TouchableOpacity>
+            </View>
             </View>
 
-            {visible.map(a => (
+            {visible.length === 0 ? (
+            <View style={styles.emptyState}>
+                <Text style={styles.emptyTitle}>No announcements found</Text>
+                <Text style={styles.emptySub}>Try different filters or clear them.</Text>
+            </View>
+            ) : (
+            visible.map(a => (
                 <Announcement
-                    key={a.id}
-                    title={a.title}
-                    desc={a.desc}
-                    date={a.date}
-                    clubName={a.clubName}
-                    announceType={a.announceType}
+                key={a.id}
+                title={a.title}
+                desc={a.desc}
+                date={a.date}
+                clubName={a.clubName}
+                announceType={a.announceType}
                 />
-            ))}
+            ))
+            )}
         </LinearGradient>
     )
 }
@@ -154,5 +175,44 @@ const styles = StyleSheet.create({
       },
       toggleTextSelected: {
         color: '#1a1a1a',
+      },
+      filterActionsRow: {
+        marginTop: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      },
+      resultCount: {
+        color: '#ffffffc0',
+        fontWeight: '500',
+      },
+      clearBtn: {
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: '#a0a0a0',
+      },
+      clearBtnText: {
+        color: '#ffffffc0',
+        fontWeight: '600',
+      },
+      emptyState: {
+        marginTop: 16,
+        alignItems: 'center',
+        padding: 16,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#2d2d2d',
+        backgroundColor: 'rgba(255,255,255,0.03)',
+      },
+      emptyTitle: {
+        color: '#f0f0f0',
+        fontWeight: '700',
+        fontSize: 16,
+      },
+      emptySub: {
+        color: '#bdbdbd',
+        marginTop: 4,
       },
 })

@@ -1,3 +1,5 @@
+import { Ionicons } from "@expo/vector-icons";
+import { decode } from "html-entities";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -11,10 +13,8 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import Hyperlink from "react-native-hyperlink";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { decode } from "html-entities";
 
 import { ThemedText } from "../../components/themed-text";
 import { ThemedView } from "../../components/themed-view";
@@ -44,7 +44,7 @@ export default function FaqScreen() {
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<\/(p|div)>/gi, "\n\n")
       .replace(/<\/li>/gi, "\n")
-      .replace(/<li[^>]*>/gi, "- ")
+      .replace(/<li[^>]*>/gi, "? ")
       .replace(/&nbsp;/gi, " ")
       .replace(/<[^>]+>/g, " ");
 
@@ -228,7 +228,7 @@ export default function FaqScreen() {
         (item.answer_html ? htmlToPlainText(item.answer_html) : "");
       const previewText = baseAnswer.replace(/\s+/g, " ").trim();
       const truncatedPreview =
-        previewText.length > 200 ? `${previewText.slice(0, 200)}...` : previewText;
+        previewText.length > 200 ? `${previewText.slice(0, 200)}?` : previewText;
       const linkTarget = item.source_url
         ? item.anchor
           ? `${item.source_url}#${item.anchor}`
@@ -436,7 +436,7 @@ export default function FaqScreen() {
             loading ? (
               <View style={styles.loadingState}>
                 <ActivityIndicator size="large" color="#FACC15" />
-                <ThemedText type="default">Loading FAQs...</ThemedText>
+                <ThemedText type="default">Loading FAQs?</ThemedText>
               </View>
             ) : error ? (
               <View style={styles.loadingState}>
@@ -659,12 +659,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 });
-
-
-
-
-
-
 
 
 

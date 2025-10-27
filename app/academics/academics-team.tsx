@@ -1,13 +1,5 @@
 import React, { useMemo } from "react";
-import {
-  FlatList,
-  Image,
-  ImageSourcePropType,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from "react-native";
 import { ExternalLink } from "../../components/external-link";
 import { ThemedText } from "../../components/themed-text";
 import { ThemedView } from "../../components/themed-view";
@@ -71,52 +63,62 @@ const MEMBERS: TeamMember[] = [
 
 export default function AcademicsTeam() {
   const data = useMemo(() => MEMBERS, []);
+  const rows = useMemo(() => {
+    const chunked: TeamMember[][] = [];
+    for (let i = 0; i < data.length; i += 2) {
+      chunked.push(data.slice(i, i + 2));
+    }
+    return chunked;
+  }, [data]);
 
   return (
-    <FlatList
-      data={data}
-      keyExtractor={(item) => item.name}
-      numColumns={2}
-      columnWrapperStyle={styles.row}
-      contentContainerStyle={{ paddingTop: 4, paddingBottom: 8 }}
-      renderItem={({ item }) => (
-        <ThemedView style={styles.card}>
-          <View style={styles.avatar}>
-            {item.image ? (
-              <Image source={item.image} style={styles.avatarImage} />
-            ) : (
-              <View style={styles.avatarFallback}>
-                <Text style={styles.avatarFallbackText}>N/A</Text>
+    <View style={styles.list}>
+      {rows.map((row, rowIndex) => (
+        <View key={`row-${rowIndex}`} style={styles.row}>
+          {row.map((item) => (
+            <ThemedView key={item.name} style={styles.card}>
+              <View style={styles.avatar}>
+                {item.image ? (
+                  <Image source={item.image} style={styles.avatarImage} />
+                ) : (
+                  <View style={styles.avatarFallback}>
+                    <Text style={styles.avatarFallbackText}>N/A</Text>
+                  </View>
+                )}
               </View>
-            )}
-          </View>
 
-          <ThemedText type="defaultSemiBold" style={styles.name}>
-            {item.name}
-          </ThemedText>
-          <ThemedText type="default" style={styles.role}>
-            {item.role}
-          </ThemedText>
+              <ThemedText type="defaultSemiBold" style={styles.name}>
+                {item.name}
+              </ThemedText>
+              <ThemedText type="default" style={styles.role}>
+                {item.role}
+              </ThemedText>
 
-          {item.linkedin ? (
-            <ExternalLink href={item.linkedin}>
-              <Pressable style={({ pressed }) => [styles.linkBtn, pressed && { opacity: 0.75 }]}>
-                <Text style={styles.linkText}>LinkedIn</Text>
-              </Pressable>
-            </ExternalLink>
-          ) : (
-            <View style={[styles.linkBtn, styles.linkBtnDisabled]}>
-              <Text style={styles.linkText}>No Link</Text>
-            </View>
+              {item.linkedin ? (
+                <ExternalLink href={item.linkedin}>
+                  <Pressable style={({ pressed }) => [styles.linkBtn, pressed && { opacity: 0.75 }]}>
+                    <Text style={styles.linkText}>LinkedIn</Text>
+                  </Pressable>
+                </ExternalLink>
+              ) : (
+                <View style={[styles.linkBtn, styles.linkBtnDisabled]}>
+                  <Text style={styles.linkText}>No Link</Text>
+                </View>
+              )}
+            </ThemedView>
+          ))}
+          {row.length === 1 && (
+            <View pointerEvents="none" style={[styles.card, styles.cardPlaceholder]} />
           )}
-        </ThemedView>
-      )}
-    />
+        </View>
+      ))}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { gap: 12 },
+  list: { paddingTop: 4, paddingBottom: 8 },
+  row: { flexDirection: "row", gap: 12 },
   card: {
     flex: 1,
     backgroundColor: "#1f1f1f",
@@ -131,6 +133,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     alignItems: "center",
   },
+  cardPlaceholder: { opacity: 0 },
   avatar: {
     width: 72,
     height: 72,

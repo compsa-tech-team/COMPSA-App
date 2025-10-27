@@ -16,6 +16,21 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
+## Supabase configuration
+
+Set the following environment variables before running the FAQ screen:
+
+- `EXPO_PUBLIC_SUPABASE_URL`
+- `EXPO_PUBLIC_SUPABASE_KEY`
+
+For local development you can add them to an `.env` file (loaded by Expo) or define them in your shell:
+
+```bash
+EXPO_PUBLIC_SUPABASE_URL="https://your-project.supabase.co" \
+EXPO_PUBLIC_SUPABASE_KEY="your-public-service-role-key" \
+npx expo start
+```
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)

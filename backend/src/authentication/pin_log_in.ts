@@ -5,16 +5,16 @@ const router = express.Router();
 
 router.post("/pin-login", async (req: Request, res: Response) => {
   try {
-    const { uuid, pin } = req.body;
+    const { email, pin } = req.body;
 
-    if (!uuid || !pin) {
-      return res.status(400).json({ error: "Missing uuid or pin" });
+    if (!email || !pin) {
+      return res.status(400).json({ error: "Missing email or pin" });
     }
 
     const { data: user, error } = await supabase
       .from("authentication")
       .select("uuid, email, pin")
-      .eq("uuid", uuid)
+      .eq("email", email)
       .maybeSingle();
 
     if (error) throw error;
@@ -32,7 +32,7 @@ router.post("/pin-login", async (req: Request, res: Response) => {
       },
     });
   } catch (err: any) {
-    console.error(err);
+    console.error("Pin login error:", err);
     res.status(500).json({ error: err.message });
   }
 });

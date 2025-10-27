@@ -22,7 +22,7 @@ router.post("/login", async (req: Request, res: Response) => {
 
     const { data: user, error: selectError } = await supabase
       .from("authentication")
-      .select("uuid, email, password, pin")
+      .select("uuid, email, password, pin, email_verified")
       .eq("email", email)
       .maybeSingle();
 

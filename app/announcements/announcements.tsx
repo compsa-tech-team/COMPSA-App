@@ -26,7 +26,7 @@ type AnnounceType = "job" | "event";
       ];
 
 export default function Announcements() {
-    const [visible, setVisible] = useState(ALL_ANNOUNCEMENTS);
+    const [announcements, setAnnouncements] = useState(ALL_ANNOUNCEMENTS);
 
     const CLUBS = ["All", "COMPSA", "QMind"] as const;
     const TYPES = ["All", "job", "event"] as const;
@@ -40,12 +40,12 @@ export default function Announcements() {
           const typeOk = nextType === "All" || a.announceType === nextType;
           return clubOk && typeOk;
         });
-        setVisible(filtered);
+        setAnnouncements(filtered);
     }
     function resetFilters() {
         setSelectedClub("All");
         setSelectedType("All");
-        setVisible(ALL_ANNOUNCEMENTS);
+        setAnnouncements(ALL_ANNOUNCEMENTS);
     }
 
     return (
@@ -98,7 +98,7 @@ export default function Announcements() {
             
             <View style={styles.filterActionsRow}>
             <Text style={styles.resultCount}>
-                {visible.length} result{visible.length === 1 ? "" : "s"}
+                {announcements.length} result{announcements.length === 1 ? "" : "s"}
             </Text>
             <TouchableOpacity onPress={resetFilters} style={styles.clearBtn}>
                 <Text style={styles.clearBtnText}>Clear filters</Text>
@@ -106,15 +106,16 @@ export default function Announcements() {
             </View>
             </View>
 
-            {visible.length === 0 ? (
+            {announcements.length === 0 ? (
             <View style={styles.emptyState}>
                 <Text style={styles.emptyTitle}>No announcements found</Text>
                 <Text style={styles.emptySub}>Try different filters or clear them.</Text>
             </View>
             ) : (
-            visible.map(a => (
+            announcements.map(a => (
                 <Announcement
                 key={a.id}
+                id={a.id}
                 title={a.title}
                 desc={a.desc}
                 date={a.date}

@@ -4,6 +4,7 @@ export default function RootLayout() {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ title: 'COMPSA App' }} />
+      <Stack.Screen name="faq/index" options={{ title: 'FAQs' }} />
     </Stack>
   );
 }

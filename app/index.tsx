@@ -10,6 +10,7 @@ export default function HomeScreen() {
       <Link href="/contact/contact">Go to Contact Page</Link>
       <Link href="/academics/academics">Go to Academics Page</Link>
       <Link href="/announcements/announcements">Go to Announcements Page</Link>
+      <Link href="/faq">Go to FAQs</Link>
     </View>
   );
 }

@@ -32,7 +32,7 @@ const featureCards = [
     key: 'room-booking',
     title: 'Room Booking',
     description: 'Reserve rooms for study sessions and events.',
-    href: '/room-booking/index',
+    href: '/room-booking',
     icon: (color: string) => (
       <MaterialCommunityIcons name="door" size={22} color={color} />
     ),
@@ -48,28 +48,28 @@ const featureCards = [
     key: 'announcements',
     title: 'Announcement Hub',
     description: 'Stay up to date with the latest COMPSA news.',
-    href: '/announcements/index',
+    href: '/announcements',
     icon: (color: string) => <Ionicons name="megaphone-outline" size={22} color={color} />,
   },
   {
     key: 'academics',
     title: 'Academics',
     description: 'Explore academic resources tailored to you.',
-    href: '/academics/index',
+    href: '/academics',
     icon: (color: string) => <Ionicons name="school-outline" size={22} color={color} />,
   },
   {
     key: 'about',
     title: 'About COMPSA',
     description: 'Learn more about our mission and team.',
-    href: '/about/index',
+    href: '/about',
     icon: (color: string) => <Ionicons name="information-circle-outline" size={22} color={color} />,
   },
   {
     key: 'cas-connect',
     title: 'CAS Connect',
     description: 'Access the CAS Connect resources and updates.',
-    href: '/cas-connect/index',
+    href: '/cas-connect',
     icon: (color: string) => <MaterialCommunityIcons name="account-group" size={22} color={color} />,
   },
 ] satisfies ReadonlyArray<FeatureCard>;
@@ -78,19 +78,19 @@ const bottomNavItems = [
   {
     key: 'academics',
     label: 'Academics',
-    href: '/academics/index',
+    href: '/academics',
     icon: (color: string) => <Ionicons name="school" size={22} color={color} />,
   },
   {
     key: 'bookings',
     label: 'Bookings',
-    href: '/room-booking/index',
+    href: '/room-booking',
     icon: (color: string) => <MaterialCommunityIcons name="calendar-clock" size={22} color={color} />,
   },
   {
     key: 'about',
     label: 'About',
-    href: '/about/index',
+    href: '/about',
     icon: (color: string) => <Ionicons name="information-circle" size={22} color={color} />,
   },
 ] satisfies ReadonlyArray<BottomNavItem>;
@@ -120,7 +120,7 @@ export default function HomeScreen() {
             Centralize your campus experience with quick access to every corner of the app.
           </Text>
 
-          <Link href="/announcements/index" asChild>
+          <Link href="/announcements" asChild>
             <Pressable style={styles.ctaButton}>
               <Text style={styles.ctaLabel}>Go to Events Calendar</Text>
               <Ionicons name="arrow-forward" size={20} color="#0e0e0e" />

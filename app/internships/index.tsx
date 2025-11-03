@@ -87,17 +87,29 @@ const Internships = () => {
                         <Text style={styles.buttonText}>Tap to retry</Text>
                     </TouchableOpacity>
                 </View>
-                : internships?.map(internship => {
+                : internships?.map((internship, index) => {
                     return (
+                      <View key={internship.id ?? index} style={{ width: "100%" }}>
                         <View style={styles.row}>
-                            <Text>{internship.company}</Text>
-                            <Text>{internship.role}</Text>
-                            <TouchableOpacity style={styles.button} onPress={() => handleApply(internship.link)}>
-                                <Text style={styles.buttonText}>Apply</Text>
-                            </TouchableOpacity>
+                          <View style={styles.jobInfo}>
+                            <Text style={styles.companyText}>{internship.company}</Text>
+                            <Text style={styles.jobText}>{internship.role}</Text>
+                            <View style={styles.locationDate}>
+                                <Text style={styles.locationText}>{internship.location}</Text>
+                                <Text style={styles.dateText}>
+                                    {new Date(internship.created_at).toLocaleDateString()}
+                                </Text>
+                            </View>
+                          </View>
+                          <TouchableOpacity style={styles.button} onPress={() => handleApply(internship.link)}>
+                            <Text style={styles.buttonText}>Apply</Text>
+                          </TouchableOpacity>
                         </View>
+                  
+                        <View style={styles.separator}/>
+                      </View>
                     )
-                })}
+                  })}
             </View>
         </LinearGradient>
     )
@@ -115,12 +127,14 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 10,
         display: 'flex',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        alignItems:"center"
     },
     title : {
         color: '#d7de21',
         fontSize: 32,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        marginBottom: 20,
     },
     row : {
         display: 'flex',
@@ -131,7 +145,8 @@ const styles = StyleSheet.create({
         backgroundColor : '#d7de21',
         padding: 10,
         borderRadius: 10,
-        alignContent: 'center'
+        alignContent: 'center',
+        height: 40,
     },
     buttonText : {
         fontWeight : 'bold'
@@ -141,6 +156,58 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         paddingVertical: 48,
         gap: 10,
+    },
+    jobInfo: {
+        flex: 1,
+        minWidth: 0,
+        gap: 4,
+    },
+    companyText: {
+        color: '#f0f0f0',
+        fontWeight: '700',
+        fontSize: 20,
+        flexShrink: 1,
+        flexWrap: "wrap",
+    },
+    jobText: {
+        color: '#f0f0f0',
+        fontWeight: '600',
+        fontSize: 14,
+        flexShrink: 1,
+        flexWrap: "wrap",
+    },
+    locationDate: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+        marginTop: 8,
+    },
+    locationText: {
+        color: '#d7de21',
+        fontWeight: '600',
+        fontSize: 14,
+        borderColor: '#d7de21',
+        borderWidth: 1.5,
+        borderRadius: 50,
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        marginRight: 8,
+        alignSelf: "flex-start",
+        flexShrink: 1,
+        flexWrap: "wrap",
+    },
+    dateText: {
+        color: '#f0f0f0',
+        fontWeight: '400',
+        fontSize: 14,
+        flexShrink: 1,
+        flexWrap: "wrap",
+    },
+    separator: {
+        height: 1,
+        backgroundColor: "rgba(255,255,255,0.2)",
+        marginVertical: 18,
+        width: "100%",
     },
     errorTitle: { color: "#f87171" },
     errorMessage: { textAlign: "center", color: "#f3f4f6" },

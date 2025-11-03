@@ -1,5 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { type ReactNode } from 'react';
+import { Link, type Href } from 'expo-router';
 import {
   Image,
   Pressable,
@@ -11,12 +12,27 @@ import {
   View,
 } from 'react-native';
 
+type FeatureCard = {
+  key: string;
+  title: string;
+  description: string;
+  href: Href;
+  icon: (color: string) => ReactNode;
+};
+
+type BottomNavItem = {
+  key: string;
+  label: string;
+  href: Href;
+  icon: (color: string) => ReactNode;
+};
+
 const featureCards = [
   {
     key: 'room-booking',
     title: 'Room Booking',
     description: 'Reserve rooms for study sessions and events.',
-    href: '/room-booking',
+    href: '/room-booking/index',
     icon: (color: string) => (
       <MaterialCommunityIcons name="door" size={22} color={color} />
     ),
@@ -32,52 +48,52 @@ const featureCards = [
     key: 'announcements',
     title: 'Announcement Hub',
     description: 'Stay up to date with the latest COMPSA news.',
-    href: '/announcements',
+    href: '/announcements/index',
     icon: (color: string) => <Ionicons name="megaphone-outline" size={22} color={color} />,
   },
   {
     key: 'academics',
     title: 'Academics',
     description: 'Explore academic resources tailored to you.',
-    href: '/academics',
+    href: '/academics/index',
     icon: (color: string) => <Ionicons name="school-outline" size={22} color={color} />,
   },
   {
     key: 'about',
     title: 'About COMPSA',
     description: 'Learn more about our mission and team.',
-    href: '/about',
+    href: '/about/index',
     icon: (color: string) => <Ionicons name="information-circle-outline" size={22} color={color} />,
   },
   {
     key: 'cas-connect',
     title: 'CAS Connect',
     description: 'Access the CAS Connect resources and updates.',
-    href: '/cas-connect',
+    href: '/cas-connect/index',
     icon: (color: string) => <MaterialCommunityIcons name="account-group" size={22} color={color} />,
   },
-];
+] satisfies ReadonlyArray<FeatureCard>;
 
 const bottomNavItems = [
   {
     key: 'academics',
     label: 'Academics',
-    href: '/academics',
+    href: '/academics/index',
     icon: (color: string) => <Ionicons name="school" size={22} color={color} />,
   },
   {
     key: 'bookings',
     label: 'Bookings',
-    href: '/room-booking',
+    href: '/room-booking/index',
     icon: (color: string) => <MaterialCommunityIcons name="calendar-clock" size={22} color={color} />,
   },
   {
     key: 'about',
     label: 'About',
-    href: '/about',
+    href: '/about/index',
     icon: (color: string) => <Ionicons name="information-circle" size={22} color={color} />,
   },
-];
+] satisfies ReadonlyArray<BottomNavItem>;
 
 export default function HomeScreen() {
   return (
@@ -101,10 +117,10 @@ export default function HomeScreen() {
             </View>
           </View>
           <Text style={styles.heroSubtitle}>
-            Centralize our campus experience with quick access to every corner of the app.
+            Centralize your campus experience with quick access to every corner of the app.
           </Text>
 
-          <Link href="/announcements" asChild>
+          <Link href="/announcements/index" asChild>
             <Pressable style={styles.ctaButton}>
               <Text style={styles.ctaLabel}>Go to Events Calendar</Text>
               <Ionicons name="arrow-forward" size={20} color="#0e0e0e" />
@@ -115,7 +131,7 @@ export default function HomeScreen() {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Explore the app</Text>
           <Text style={styles.sectionSubtitle}>
-            Dive into the features that help you stay engaged and informed.
+            Explore features that help you stay engaged and informed.
           </Text>
         </View>
 

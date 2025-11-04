@@ -1,32 +1,27 @@
+import { ThemedText } from "@/components/themed-text";
 import Announcement from "@/components/ui/announcement";
+import { supabase } from "@/utils/supabase";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type AnnounceType = "job" | "event";
 
-    const ALL_ANNOUNCEMENTS = [
-        {
-          id: "1",
-          title: "iOS Dev Hiring",
-          desc: "COMPSA is hiring a part-time iOS dev.",
-          date: new Date(),
-          clubName: "COMPSA",
-          announceType: "job" as AnnounceType,
-        },
-        {
-          id: "2",
-          title: "AI Conference",
-          desc: "Guest speakers and pizza.",
-          date: new Date(),
-          clubName: "QMind",
-          announceType: "event" as AnnounceType,
-        },
-      ];
+type AnnouncementData = {
+  id: number;
+  title: string;
+  desc: string;
+  clubName : string;
+  created_at : string;
+  announceType : AnnounceType;
+}
 
 export default function Announcements() {
-    const [announcements, setAnnouncements] = useState(ALL_ANNOUNCEMENTS);
+    const [allAnnouncements, setAllAnnouncements] = useState<AnnouncementData[]>([]);
+    const [announcements, setAnnouncements] = useState<AnnouncementData[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null)
 
     const CLUBS = ["All", "COMPSA", "QMind"] as const;
     const TYPES = ["All", "job", "event"] as const;
@@ -34,8 +29,39 @@ export default function Announcements() {
     const [selectedClub, setSelectedClub] = useState<(typeof CLUBS)[number]>("All");
     const [selectedType, setSelectedType] = useState<(typeof TYPES)[number]>("All");
 
+    const loadAnnounce = useCallback(async() => {
+      if (!supabase) {
+        setError("Supabase not initialized");
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true)
+
+      try {
+        const {data, error} = await supabase
+        .from('announcement hub')
+        .select('*')
+
+        setAllAnnouncements(data || []);
+        setAnnouncements(data || []);
+        setError(null)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error");
+        setAllAnnouncements([]);
+        setAnnouncements([]);
+      } finally {
+        setIsLoading(false)
+      }
+    }, [])
+
+    useEffect(() => {
+      loadAnnounce()
+    }, [loadAnnounce])
+
     function applyFilter(nextClub = selectedClub, nextType = selectedType) {
-        const filtered = ALL_ANNOUNCEMENTS.filter(a => {
+      if (!allAnnouncements) return;
+        const filtered = allAnnouncements.filter(a => {
           const clubOk = nextClub === "All" || a.clubName === nextClub;
           const typeOk = nextType === "All" || a.announceType === nextType;
           return clubOk && typeOk;
@@ -45,7 +71,7 @@ export default function Announcements() {
     function resetFilters() {
         setSelectedClub("All");
         setSelectedType("All");
-        setAnnouncements(ALL_ANNOUNCEMENTS);
+        setAnnouncements(allAnnouncements);
     }
 
     return (
@@ -93,37 +119,52 @@ export default function Announcements() {
                 </TouchableOpacity>
                 ))}
             </View>
+                <View style={{ height: 10 }} />
+                <View style={styles.filterActionsRow}>
+                  <Text style={styles.resultCount}>
+                    {announcements.length} result{announcements.length === 1 ? "" : "s"}
+                  </Text>
+                  <TouchableOpacity onPress={resetFilters} style={styles.clearBtn}>
+                    <Text style={styles.clearBtnText}>Clear filters</Text>
+                  </TouchableOpacity>
+                </View>
 
-            <View style={{ height: 10 }} />
-            
-            <View style={styles.filterActionsRow}>
-            <Text style={styles.resultCount}>
-                {announcements.length} result{announcements.length === 1 ? "" : "s"}
-            </Text>
-            <TouchableOpacity onPress={resetFilters} style={styles.clearBtn}>
-                <Text style={styles.clearBtnText}>Clear filters</Text>
-            </TouchableOpacity>
+                {isLoading ? (
+                  <View style={styles.loadingState}>
+                    <ActivityIndicator size="large" color="#FACC15" />
+                    <ThemedText type="default">Loading FAQs...</ThemedText>
+                  </View>
+                ) : error ? (
+                  <View style={styles.loadingState}>
+                    <ThemedText type="defaultSemiBold" style={styles.errorTitle}>
+                      Unable to load FAQs
+                    </ThemedText>
+                    <ThemedText type="default" style={styles.errorMessage}>
+                      {error}
+                    </ThemedText>
+                    <ThemedText type="link" onPress={loadAnnounce}>
+                      Tap to retry
+                    </ThemedText>
+                  </View>         
+                ) : announcements.length === 0 ? (
+                  <View style={styles.emptyState}>
+                    <Text style={styles.emptyTitle}>No announcements found</Text>
+                    <Text style={styles.emptySub}>Try different filters or clear them.</Text>
+                  </View>
+                ) : (
+                  announcements.map((a) => (
+                    <Announcement
+                      key={a.id}
+                      id={a.id}
+                      title={a.title}
+                      desc={a.desc}
+                      date={a.created_at}
+                      clubName={a.clubName}
+                      announceType={a.announceType}
+                    />
+                  ))
+                )}
             </View>
-            </View>
-
-            {announcements.length === 0 ? (
-            <View style={styles.emptyState}>
-                <Text style={styles.emptyTitle}>No announcements found</Text>
-                <Text style={styles.emptySub}>Try different filters or clear them.</Text>
-            </View>
-            ) : (
-            announcements.map(a => (
-                <Announcement
-                key={a.id}
-                id={a.id}
-                title={a.title}
-                desc={a.desc}
-                date={a.date}
-                clubName={a.clubName}
-                announceType={a.announceType}
-                />
-            ))
-            )}
         </LinearGradient>
     )
 }
@@ -216,4 +257,12 @@ const styles = StyleSheet.create({
         color: '#bdbdbd',
         marginTop: 4,
       },
+      loadingState: {
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 48,
+        gap: 10,
+      },
+      errorTitle: { color: "#f87171" },
+      errorMessage: { textAlign: "center", color: "#f3f4f6" },
 })

@@ -4,20 +4,21 @@ import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-nati
 const { width } = Dimensions.get("window");
 
 type AnnouncementProps = {
-    id: string;
+    id: number;
     title: string;
     clubName: string;
     desc: string;
-    date: Date;
+    date: string;
     deadline?: Date;
     announceType?: string;
 }
 
 export default function Announcement({id, title, clubName, desc, date, deadline, announceType} : AnnouncementProps) {
 
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
+    const dateObj = new Date(date);
+    const day = dateObj.getDate();
+    const month = dateObj.getMonth() + 1;
+    const year = dateObj.getFullYear();
     const dateString = month + "/" + day + "/" + year;
 
     const updateAnnounce = () => {

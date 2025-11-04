@@ -1,21 +1,12 @@
+import { AnnouncementData } from "@/types/announcement";
 import { router } from "expo-router";
 import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 const { width } = Dimensions.get("window");
 
-type AnnouncementProps = {
-    id: number;
-    title: string;
-    clubName: string;
-    desc: string;
-    date: string;
-    deadline?: Date;
-    announceType?: string;
-}
+export default function Announcement({id, title, clubName, desc, created_at, deadline, announceType} : AnnouncementData) {
 
-export default function Announcement({id, title, clubName, desc, date, deadline, announceType} : AnnouncementProps) {
-
-    const dateObj = new Date(date);
+    const dateObj = new Date(created_at);
     const day = dateObj.getDate();
     const month = dateObj.getMonth() + 1;
     const year = dateObj.getFullYear();

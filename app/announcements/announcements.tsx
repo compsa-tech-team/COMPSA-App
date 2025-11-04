@@ -1,21 +1,11 @@
 import { ThemedText } from "@/components/themed-text";
 import Announcement from "@/components/ui/announcement";
+import { AnnouncementData } from "@/types/announcement";
 import { supabase } from "@/utils/supabase";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-type AnnounceType = "job" | "event";
-
-type AnnouncementData = {
-  id: number;
-  title: string;
-  desc: string;
-  clubName : string;
-  created_at : string;
-  announceType : AnnounceType;
-}
 
 export default function Announcements() {
     const [allAnnouncements, setAllAnnouncements] = useState<AnnouncementData[]>([]);
@@ -158,7 +148,7 @@ export default function Announcements() {
                       id={a.id}
                       title={a.title}
                       desc={a.desc}
-                      date={a.created_at}
+                      created_at={a.created_at}
                       clubName={a.clubName}
                       announceType={a.announceType}
                     />

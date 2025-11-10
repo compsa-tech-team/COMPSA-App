@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-const API_URL = "http://localhost:3000/authentication"; 
+const API_URL = "http://localhost:3000/authentication"; // CHANGE THIS LINK WHEN DEPLOYING BACKEND
 
 export async function login(email: string, password: string) {
   try {

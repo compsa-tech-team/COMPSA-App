@@ -10,7 +10,7 @@ export async function sendVerificationEmail(email: string, token: string) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "noreply@compsa.queensu.ca",
+      from: "noreply@compsa.ca",
       to: email,
       subject: "COMPSA App Email Verification",
       html: `

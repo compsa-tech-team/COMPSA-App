@@ -1,7 +1,10 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { addMinutes, format, startOfDay } from "date-fns";
 import { useRouter } from "expo-router";
+import { DateTime } from "luxon";
 import React, { useState } from "react";
+import { ScrollView } from "react-native";
+
 import {
   Alert,
   SafeAreaView,
@@ -20,7 +23,7 @@ export default function RoomBookingScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedTimes, setSelectedTimes] = useState<Date[]>([]);
 
-  // generate timeslots (9 AM - 5 PM, every 30 mins)
+  // generate timeslots
   const generateTimeSlots = (date: Date) => {
     const slots: Date[] = [];
     const base = startOfDay(date);
@@ -28,10 +31,10 @@ export default function RoomBookingScreen() {
       base.getFullYear(),
       base.getMonth(),
       base.getDate(),
-      9,
+      0,
       0
     );
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 48; i++) {
       slots.push(addMinutes(start, i * 30));
     }
     return slots;
@@ -60,6 +63,9 @@ export default function RoomBookingScreen() {
   const areAdjacent = (d1: Date, d2: Date) => {
     return Math.abs(d1.getTime() - d2.getTime()) === 30 * 60 * 1000;
   };
+
+  const today = new Date();
+  const maxDate = DateTime.now().plus({ days: 3 }).toJSDate();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -106,6 +112,8 @@ export default function RoomBookingScreen() {
           mode="date"
           display="spinner"
           themeVariant="dark"
+          minimumDate={today}
+          maximumDate={maxDate}
           style={styles.datePicker}
           onChange={(event, date) => {
             setShowDatePicker(false);
@@ -119,7 +127,11 @@ export default function RoomBookingScreen() {
 
       {/* Time Picker */}
       <Text style={styles.label}>Select Time:</Text>
-      <View style={styles.timeGrid}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.timeScrollContainer}
+      >
         {timeSlots.map((slot) => {
           const label = format(slot, "HH:mm");
           const isSelected = selectedTimes.some(
@@ -132,26 +144,21 @@ export default function RoomBookingScreen() {
               style={[styles.timeButton, isSelected && styles.selectedTimes]}
               onPress={() => {
                 const already = selectedTimes.find(
-                  (t) => format(t, "HH:mm") === format(slot, "HH:mm")
+                  (t) => format(t, "HH:mm") === label
                 );
 
-                // If already selected → unselect
                 if (already) {
                   setSelectedTimes(
-                    selectedTimes.filter(
-                      (t) => format(t, "HH:mm") !== format(slot, "HH:mm")
-                    )
+                    selectedTimes.filter((t) => format(t, "HH:mm") !== label)
                   );
                   return;
                 }
 
-                // No selections yet → select
                 if (selectedTimes.length === 0) {
                   setSelectedTimes([slot]);
                   return;
                 }
 
-                // One selected → allow only if adjacent
                 if (selectedTimes.length === 1) {
                   if (areAdjacent(selectedTimes[0], slot)) {
                     const sorted = [selectedTimes[0], slot].sort(
@@ -159,13 +166,11 @@ export default function RoomBookingScreen() {
                     );
                     setSelectedTimes(sorted);
                   } else {
-                    // Replace if not adjacent
                     setSelectedTimes([slot]);
                   }
                   return;
                 }
 
-                // Two already selected → reset to only this one
                 if (selectedTimes.length === 2) {
                   setSelectedTimes([slot]);
                 }
@@ -182,7 +187,7 @@ export default function RoomBookingScreen() {
             </TouchableOpacity>
           );
         })}
-      </View>
+      </ScrollView>
 
       {/* Submit */}
       <View style={styles.submitButtonContainer}>
@@ -198,19 +203,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#050505", // main black background
+    backgroundColor: "#050505",
   },
   title: {
     fontSize: 24,
     fontWeight: "700",
     marginBottom: 20,
     textAlign: "center",
-    color: "#ffffff", // white text
+    color: "#ffffff",
   },
   label: {
     fontSize: 16,
     marginBottom: 8,
-    color: "#ffffff", // white text
+    color: "#ffffff",
   },
   row: {
     flexDirection: "row",
@@ -221,13 +226,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     borderWidth: 1,
-    borderColor: "#888888", // light grey border
+    borderColor: "#888888",
     borderRadius: 8,
     alignItems: "center",
-    backgroundColor: "#1a1a1a", // dark grey background
+    backgroundColor: "#1a1a1a",
   },
   selectedRoom: {
-    backgroundColor: "#d7de21", // yellow accent
+    backgroundColor: "#d7de21",
     borderColor: "#d7de21",
   },
   roomText: {
@@ -235,7 +240,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   selectedRoomText: {
-    color: "#050505", // black text on yellow
+    color: "#050505",
     fontWeight: "700",
   },
   dateButton: {
@@ -263,15 +268,8 @@ const styles = StyleSheet.create({
     marginTop: 25,
     marginBottom: 25,
   },
-  timeGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 16,
-    justifyContent: "center",
-  },
   timeButton: {
-    width: "22%",
+    width: 80,
     paddingVertical: 10,
     borderWidth: 1,
     borderColor: "#888888",
@@ -280,7 +278,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#1a1a1a",
   },
   selectedTimes: {
-    backgroundColor: "#d7de21", // yellow accent
+    backgroundColor: "#d7de21",
     borderColor: "#d7de21",
   },
   timeText: {
@@ -289,7 +287,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   selectedTimesText: {
-    color: "#050505", // black text on yellow
+    color: "#050505",
     fontWeight: "700",
   },
   submitButtonContainer: {
@@ -304,7 +302,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 12,
     borderWidth: 1,
-    borderColor: "#888888", // light grey border
+    borderColor: "#888888",
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -314,5 +312,13 @@ const styles = StyleSheet.create({
     color: "#050505",
     fontWeight: "700",
     fontSize: 16,
+  },
+  timeScrollContainer: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    gap: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
   },
 });

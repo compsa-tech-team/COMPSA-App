@@ -84,14 +84,7 @@ export default function BookingDetailsScreen() {
     console.log("endISO:", endISO);
 
     // Map room name to room_id
-    const room_id =
-      room === "Room A"
-        ? 1
-        : room === "Room B"
-        ? 2
-        : room === "Room C"
-        ? 3
-        : null;
+    const room_id = room === "Room A" ? 1 : room === "Room B" ? 2 : null;
 
     if (!room_id) {
       alert("Invalid room selected");

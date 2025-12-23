@@ -1,13 +1,12 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { addMinutes, format, startOfDay } from "date-fns";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router"; // Added useFocusEffect
 import { DateTime } from "luxon";
-import React, { useState } from "react";
-import { ScrollView } from "react-native";
-
+import React, { useCallback, useState } from "react";
 import {
   Alert,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -22,8 +21,17 @@ export default function RoomBookingScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedTimes, setSelectedTimes] = useState<Date[]>([]);
+  const [unavailable, setUnavailable] = useState<string[]>([]);
 
-  // generate timeslots
+  // 1. Force the Availability Refresh when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (selectedRoom) {
+        fetchAvailability(selectedRoom, selectedDate);
+      }
+    }, [selectedRoom, selectedDate])
+  );
+
   const generateTimeSlots = (date: Date) => {
     const slots: Date[] = [];
     const base = startOfDay(date);
@@ -48,14 +56,23 @@ export default function RoomBookingScreen() {
       return;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const sortedTimes = [...selectedTimes].sort(
+      (a, b) => a.getTime() - b.getTime()
+    );
+
+    const startTime = sortedTimes[0];
+    const lastSlot = sortedTimes[sortedTimes.length - 1];
+    const endTime = addMinutes(lastSlot, 30);
 
     router.push({
       pathname: "/room-booking/details",
       params: {
         room: selectedRoom,
-        date: format(selectedDate, "PPP"),
-        times: selectedTimes.map((t) => format(t, "HH:mm")),
+        // Pass ISO strings to ensure the API receives exact times
+        dateISO: selectedDate.toISOString(),
+        startTimeISO: startTime.toISOString(),
+        endTimeISO: endTime.toISOString(),
+        displayDate: format(selectedDate, "PPP"),
       },
     });
   };
@@ -66,6 +83,76 @@ export default function RoomBookingScreen() {
 
   const today = new Date();
   const maxDate = DateTime.now().plus({ days: 3 }).toJSDate();
+
+const fetchAvailability = async (room: Room | null, date: Date) => {
+    if (!room) return;
+
+    const room_id = room === "Room A" ? 1 : 2;
+    // 1. Get the target date string for comparison (e.g., "2025-11-28")
+    const toronto = DateTime.fromJSDate(date).setZone("America/Toronto");
+    const dateString = toronto.toFormat("yyyy-MM-dd");
+
+    try {
+      const res = await fetch(
+        `https://compsa.ca/api/room-booking/availability?room_id=${room_id}&date=${dateString}`
+      );
+      const json = await res.json();
+      
+      console.log("--- AVAILABILITY DEBUG ---");
+      console.log(`Querying Room ${room_id} for ${dateString}`);
+      console.log("API Response JSON:", json);
+      console.log("--------------------------");
+
+      if (!json.success) {
+        setUnavailable([]);
+        return;
+      }
+
+      const blocked: string[] = [];
+
+      // 2. Filter out ALL slots that do not start on the requested date.
+      const filteredSlots = json.slots.filter((slot: any) => {
+          // The API returns "2025-11-28T10:00:00"
+          const slotDateStr = slot.start.substring(0, 10);
+          return slotDateStr === dateString;
+      });
+      
+      // We now iterate only over the slots relevant to the selected date.
+      filteredSlots.forEach((slot: any) => {
+        // We still need the timezone correction we did before:
+        const start = DateTime.fromISO(slot.start, { zone: "America/Toronto" });
+        const end = DateTime.fromISO(slot.end, { zone: "America/Toronto" });
+
+        let cursor = start;
+        // Loop through 30 min chunks
+        while (cursor < end) {
+          blocked.push(cursor.toFormat("HH:mm"));
+          cursor = cursor.plus({ minutes: 30 });
+        }
+      });
+
+      setUnavailable(blocked);
+    } catch (err) {
+      console.error("Availability fetch error:", err);
+      setUnavailable([]);
+    }
+  };
+
+  const nowToronto = DateTime.now().setZone("America/Toronto");
+
+  const floorNow = nowToronto.minus({
+    minutes: nowToronto.minute % 30,
+    seconds: nowToronto.second,
+    milliseconds: nowToronto.millisecond,
+  });
+
+  const selectedDateToronto = DateTime
+    .fromJSDate(selectedDate)
+    .setZone("America/Toronto");
+
+  const isToday = 
+    selectedDateToronto.toISODate() === nowToronto.toISODate();
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -81,7 +168,10 @@ export default function RoomBookingScreen() {
               styles.roomButton,
               selectedRoom === room && styles.selectedRoom,
             ]}
-            onPress={() => setSelectedRoom(room)}
+            onPress={() => {
+              setSelectedRoom(room);
+              // Fetch triggered by state change + useFocusEffect
+            }}
           >
             <Text
               style={[
@@ -117,13 +207,15 @@ export default function RoomBookingScreen() {
           style={styles.datePicker}
           onChange={(event, date) => {
             setShowDatePicker(false);
-
             if (date) {
               setSelectedDate(date);
+              // Fetch triggered by state change + useFocusEffect
             }
           }}
         />
       )}
+
+      
 
       {/* Time Picker */}
       <Text style={styles.label}>Select Time:</Text>
@@ -137,11 +229,30 @@ export default function RoomBookingScreen() {
           const isSelected = selectedTimes.some(
             (t) => format(t, "HH:mm") === label
           );
+          const pillTime = DateTime.fromObject(
+            {
+              year: selectedDateToronto.year,
+              month: selectedDateToronto.month,
+              day: selectedDateToronto.day,
+              hour: slot.getHours(),
+              minute: slot.getMinutes(),
+            },
+            { zone: "America/Toronto" }
+          );
+
+          const isPast = isToday && pillTime < floorNow;
+          const isBlocked = isPast || unavailable.includes(label);
+
 
           return (
             <TouchableOpacity
               key={label}
-              style={[styles.timeButton, isSelected && styles.selectedTimes]}
+              disabled={isBlocked}
+              style={[
+                styles.timeButton,
+                isSelected && styles.selectedTimes,
+                isBlocked && { backgroundColor: "#333", opacity: 0.5 },
+              ]}
               onPress={() => {
                 const already = selectedTimes.find(
                   (t) => format(t, "HH:mm") === label
@@ -180,6 +291,7 @@ export default function RoomBookingScreen() {
                 style={[
                   styles.timeText,
                   isSelected && styles.selectedTimesText,
+                  isBlocked && { color: "#777" },
                 ]}
               >
                 {label}
@@ -198,6 +310,7 @@ export default function RoomBookingScreen() {
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -319,6 +432,5 @@ const styles = StyleSheet.create({
     gap: 8,
     flexDirection: "row",
     alignItems: "center",
-    flexWrap: "wrap",
   },
 });

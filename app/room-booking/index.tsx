@@ -68,13 +68,11 @@ export default function RoomBookingScreen() {
       pathname: "/room-booking/details",
       params: {
         room: selectedRoom,
-        // Pass ISO strings to ensure the API receives exact times
-        dateISO: selectedDate.toISOString(),
-        startTimeISO: startTime.toISOString(),
-        endTimeISO: endTime.toISOString(),
-        displayDate: format(selectedDate, "PPP"),
+        date: format(selectedDate, "yyyy-MM-dd"),
+        times: sortedTimes.map(t => format(t, "HH:mm")).join(","),
       },
     });
+
   };
 
   const areAdjacent = (d1: Date, d2: Date) => {

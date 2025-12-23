@@ -14,7 +14,17 @@ import {
 
 export default function BookingDetailsScreen() {
   const router = useRouter();
-  const { room, date, times } = useLocalSearchParams();
+  const { room, date: dateParam, times } = useLocalSearchParams();
+
+  // Normalize date to string
+  const date = Array.isArray(dateParam) ? dateParam[0] : dateParam;
+
+  if (!date) {
+    // handle missing date gracefully
+    alert("No date selected!");
+    return null; // stop rendering if date is missing
+  }
+
 
   // Normalize times into an array
   let timeArray: string[] = [];
@@ -69,14 +79,14 @@ export default function BookingDetailsScreen() {
 
     const torontoZone = "America/Toronto";
 
-    // Construct ISO strings for API in Toronto timezone
-    const startISO = DateTime.now()
-      .setZone(torontoZone)
+    // Construct ISO strings for API using the selected date
+    const selectedDateToronto = DateTime.fromISO(date, { zone: torontoZone });
+
+    const startISO = selectedDateToronto
       .set({ hour: startH, minute: startM, second: 0, millisecond: 0 })
       .toISO();
 
-    const endISO = DateTime.now()
-      .setZone(torontoZone)
+    const endISO = selectedDateToronto
       .set({ hour: endH, minute: endM, second: 0, millisecond: 0 })
       .toISO();
 

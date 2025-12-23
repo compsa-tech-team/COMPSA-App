@@ -1,4 +1,3 @@
-// app/room-booking/details.tsx
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { DateTime } from "luxon";
 import React, { useState } from "react";
@@ -15,14 +14,13 @@ import {
 export default function BookingDetailsScreen() {
   const router = useRouter();
   const { room, date: dateParam, times } = useLocalSearchParams();
-
   // Normalize date to string
   const date = Array.isArray(dateParam) ? dateParam[0] : dateParam;
 
   if (!date) {
-    // handle missing date gracefully
+    // handle missing date
     alert("No date selected!");
-    return null; // stop rendering if date is missing
+    return null;
   }
 
 
@@ -70,9 +68,8 @@ export default function BookingDetailsScreen() {
       return;
     }
 
-    // Start and end times from top of file
-    const start = startTime; // e.g. "16:00"
-    const end = endTime; // e.g. "16:30"
+    const start = startTime; 
+    const end = endTime; 
 
     const [startH, startM] = start.split(":").map(Number);
     const [endH, endM] = end.split(":").map(Number);
@@ -102,7 +99,7 @@ export default function BookingDetailsScreen() {
     }
 
     try {
-      // 1️⃣ Create pending booking
+      // Create pending booking
       const bookingRes = await fetch(
         "https://compsa.ca/api/room-booking/bookings",
         {
@@ -127,7 +124,7 @@ export default function BookingDetailsScreen() {
 
       const verificationToken = bookingData.verificationToken;
 
-      // 2️⃣ Send verification email
+      // Send verification email
       const emailRes = await fetch(
         "https://compsa.ca/api/room-booking/emails",
         {

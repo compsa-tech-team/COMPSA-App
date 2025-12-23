@@ -1,6 +1,6 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { addMinutes, format, startOfDay } from "date-fns";
-import { useFocusEffect, useRouter } from "expo-router"; // Added useFocusEffect
+import { useFocusEffect, useRouter } from "expo-router";
 import { DateTime } from "luxon";
 import React, { useCallback, useState } from "react";
 import {
@@ -23,7 +23,7 @@ export default function RoomBookingScreen() {
   const [selectedTimes, setSelectedTimes] = useState<Date[]>([]);
   const [unavailable, setUnavailable] = useState<string[]>([]);
 
-  // 1. Force the Availability Refresh when screen comes into focus
+  // Availability Refresh when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       if (selectedRoom) {
@@ -86,7 +86,6 @@ const fetchAvailability = async (room: Room | null, date: Date) => {
     if (!room) return;
 
     const room_id = room === "Room A" ? 1 : 2;
-    // 1. Get the target date string for comparison (e.g., "2025-11-28")
     const toronto = DateTime.fromJSDate(date).setZone("America/Toronto");
     const dateString = toronto.toFormat("yyyy-MM-dd");
 
@@ -108,16 +107,15 @@ const fetchAvailability = async (room: Room | null, date: Date) => {
 
       const blocked: string[] = [];
 
-      // 2. Filter out ALL slots that do not start on the requested date.
+      // Filter out all slots that do not start on the requested date.
       const filteredSlots = json.slots.filter((slot: any) => {
           // The API returns "2025-11-28T10:00:00"
           const slotDateStr = slot.start.substring(0, 10);
           return slotDateStr === dateString;
       });
       
-      // We now iterate only over the slots relevant to the selected date.
+      // Iterate only over the slots relevant to the selected date.
       filteredSlots.forEach((slot: any) => {
-        // We still need the timezone correction we did before:
         const start = DateTime.fromISO(slot.start, { zone: "America/Toronto" });
         const end = DateTime.fromISO(slot.end, { zone: "America/Toronto" });
 
@@ -207,7 +205,6 @@ const fetchAvailability = async (room: Room | null, date: Date) => {
             setShowDatePicker(false);
             if (date) {
               setSelectedDate(date);
-              // Fetch triggered by state change + useFocusEffect
             }
           }}
         />
